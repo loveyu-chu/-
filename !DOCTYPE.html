@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 領航員：生成式 AI 實戰營 2026</title>
+  
+  <!-- Google Fonts: Zen Maru Gothic & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#F8F6F0',
+            paperDark: '#EFECE4',
+            ink: '#23201D',
+            inkMuted: '#6B655F',
+            terracotta: '#D95C3C',
+            terracottaLight: '#FDF1EE',
+            matcha: '#4A6B53',
+            matchaLight: '#EEF4F0',
+            mustard: '#D89736',
+            mustardLight: '#FEF8EE',
+            aizome: '#34526F',
+            aizomeLight: '#EEF3F8',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+            maru: ['"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          boxShadow: {
+            'app': '0 8px 30px rgba(35, 32, 29, 0.06)',
+            'card': '0 3px 12px rgba(35, 32, 29, 0.04)',
+            'card-hover': '0 8px 20px rgba(35, 32, 29, 0.08)',
+            'pill': '0 2px 8px rgba(217, 92, 60, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 隱藏滾動條維持極簡流暢度 */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    * { -webkit-tap-highlight-color: transparent; }
+    
+    /* 垂直時間軸連線 */
+    .timeline-line::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 36px;
+      bottom: -16px;
+      width: 2px;
+      background: #E5DFD5;
+      z-index: 1;
+    }
+    .timeline-item:last-child .timeline-line::before { display: none; }
+  </style>
+</head>
+<body class="bg-stone-200/60 font-sans text-ink min-h-screen sm:py-6 flex justify-center selection:bg-terracotta/20 selection:text-terracotta">
+
+  <!-- Mobile App Frame 外框容器（電腦上居中呈現精緻手機外觀，手機上全螢幕貼合） -->
+  <div class="w-full sm:max-w-md bg-paper min-h-screen sm:min-h-[880px] sm:rounded-[36px] sm:shadow-2xl sm:border-[5px] sm:border-stone-800/10 overflow-hidden flex flex-col relative">
+
+    <!-- 頂部手機狀態列 (Status Bar) -->
+    <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs font-semibold text-inkMuted tracking-wider select-none">
+      <span>09:41</span>
+      <div class="flex items-center space-x-1.5">
+        <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+        <div class="w-5 h-2.5 border border-inkMuted rounded-sm p-[1px] flex items-center">
+          <div class="h-full w-3 bg-inkMuted rounded-[1px]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. 頂部導航列 (Header) -->
+    <header class="px-5 pt-2 pb-3 bg-paper sticky top-0 z-30 border-b border-stone-200/80 backdrop-blur-md bg-paper/95">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-terracotta text-white shadow-pill font-black text-sm">
+            AI
+          </span>
+          <div>
+            <span class="text-[11px] font-bold tracking-widest text-terracotta uppercase bg-terracottaLight px-2 py-0.5 rounded-full border border-terracotta/20">
+              Autumn BootCamp
+            </span>
+            <p class="text-[11px] text-inkMuted mt-0.5">2026.11.11 - 11.15・連續 5 日密集研習</p>
+          </div>
+        </div>
+        <button id="btnShare" class="w-9 h-9 rounded-2xl bg-white border border-stone-300 flex items-center justify-center text-ink shadow-sm hover:bg-stone-50 active:scale-95 transition-all" title="分享課綱">
+          <i data-lucide="share-2" class="w-4 h-4 text-inkMuted"></i>
+        </button>
+      </div>
+
+      <!-- 主標題 -->
+      <h1 class="text-lg font-bold font-maru text-ink tracking-tight flex items-center gap-1.5">
+        <span>AI 領航員：生成式 AI 實戰營</span>
+      </h1>
+
+      <!-- 橫向分頁標籤 (Tabs) -->
+      <nav class="flex items-center space-x-2 mt-3 text-xs font-semibold overflow-x-auto no-scrollbar py-0.5">
+        <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn px-3.5 py-1.5 rounded-xl bg-ink text-white shadow-sm transition-all whitespace-nowrap">
+          每日課表
+        </button>
+        <button onclick="switchTab('modules')" id="tab-modules" class="tab-btn px-3.5 py-1.5 rounded-xl bg-white text-inkMuted border border-stone-300 hover:border-ink/40 transition-all whitespace-nowrap">
+          課程模組
+        </button>
+        <button onclick="switchTab('checklist')" id="tab-checklist" class="tab-btn px-3.5 py-1.5 rounded-xl bg-white text-inkMuted border border-stone-300 hover:border-ink/40 transition-all whitespace-nowrap flex items-center gap-1">
+          學習清單
+          <span id="badgeChecklist" class="w-4 h-4 text-[10px] bg-terracotta text-white rounded-full inline-flex items-center justify-center font-bold">3</span>
+        </button>
+        <button onclick="switchTab('venue')" id="tab-venue" class="tab-btn px-3.5 py-1.5 rounded-xl bg-white text-inkMuted border border-stone-300 hover:border-ink/40 transition-all whitespace-nowrap">
+          教室資訊
+        </button>
+      </nav>
+    </header>
+
+    <!-- 主滾動內容區塊 -->
+    <main class="flex-1 overflow-y-auto px-5 py-4 space-y-6 pb-20">
+
+      <!-- 2. 日期/模組切換膠囊列 (Date / Module Carousel) -->
+      <section id="dateSelectorSection">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+            <h2 class="text-xs font-bold text-ink uppercase tracking-wider font-maru">日程切換 / Schedule</h2>
+          </div>
+          <span class="text-[11px] text-inkMuted" id="currentDateLabel">Day 1 ・ 11/11 (週三)</span>
+        </div>
+
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <!-- Day 1 至 Day 5 膠囊按鈕 -->
+          <button onclick="selectDay(1)" id="day-btn-1" class="day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border-2 border-ink text-center shadow-sm flex flex-col items-center transition-all scale-[1.02] ring-2 ring-ink/10">
+            <span class="text-[10px] font-bold text-terracotta uppercase tracking-wider">Day 1</span>
+            <span class="text-sm font-bold text-ink font-maru">11/11</span>
+            <span class="text-[9px] text-inkMuted">啟航思維</span>
+          </button>
+
+          <button onclick="selectDay(2)" id="day-btn-2" class="day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border border-stone-300 text-center shadow-card flex flex-col items-center opacity-75 hover:opacity-100 hover:border-stone-400 transition-all">
+            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Day 2</span>
+            <span class="text-sm font-bold text-ink font-maru">11/12</span>
+            <span class="text-[9px] text-inkMuted">提示工程</span>
+          </button>
+
+          <button onclick="selectDay(3)" id="day-btn-3" class="day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border border-stone-300 text-center shadow-card flex flex-col items-center opacity-75 hover:opacity-100 hover:border-stone-400 transition-all">
+            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Day 3</span>
+            <span class="text-sm font-bold text-ink font-maru">11/13</span>
+            <span class="text-[9px] text-inkMuted">多模態創作</span>
+          </button>
+
+          <button onclick="selectDay(4)" id="day-btn-4" class="day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border border-stone-300 text-center shadow-card flex flex-col items-center opacity-75 hover:opacity-100 hover:border-stone-400 transition-all">
+            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Day 4</span>
+            <span class="text-sm font-bold text-ink font-maru">11/14</span>
+            <span class="text-[9px] text-inkMuted">Agent自動化</span>
+          </button>
+
+          <button onclick="selectDay(5)" id="day-btn-5" class="day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border border-stone-300 text-center shadow-card flex flex-col items-center opacity-75 hover:opacity-100 hover:border-stone-400 transition-all">
+            <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Day 5</span>
+            <span class="text-sm font-bold text-ink font-maru">11/15</span>
+            <span class="text-[9px] text-inkMuted">Demo Day</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. 主體內容區 - 垂直時間軸 (Timeline Cards) -->
+      <section id="timelineSection" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-bold font-maru text-ink">課程節次流向</h3>
+            <span class="text-[11px] px-2 py-0.5 rounded-md bg-stone-200 text-inkMuted font-mono">3 個核心單元</span>
+          </div>
+          <span class="text-[11px] text-terracotta font-medium flex items-center gap-1">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            總計 6 小時
+          </span>
+        </div>
+
+        <!-- 動態時間軸容器（支援 JavaScript 即時切換 Day 1 ~ Day 5） -->
+        <div id="timelineContainer" class="space-y-4 relative"></div>
+      </section>
+
+      <!-- 4. 模組地圖總覽 (Module Overview) -->
+      <section id="moduleOverviewSection" class="space-y-3 pt-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold font-maru text-ink flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-4 h-4 text-aizome"></i>
+            五大實戰模組地圖
+          </h3>
+          <span class="text-[11px] text-inkMuted">從新手到工作流部署</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-white rounded-2xl p-3 border border-stone-300 shadow-card hover:border-ink/50 transition-all group cursor-pointer" onclick="selectDay(1)">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="w-6 h-6 rounded-lg bg-terracottaLight text-terracotta flex items-center justify-center font-bold text-xs">M1</span>
+              <span class="text-[10px] font-bold text-stone-400">Day 1</span>
+            </div>
+            <h4 class="text-xs font-bold text-ink group-hover:text-terracotta transition-colors">核心認知與模型思維</h4>
+            <p class="text-[10px] text-inkMuted mt-1 line-clamp-2">掌握 LLM 運作本質、Token 定價與基礎架構思考。</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-3 border border-stone-300 shadow-card hover:border-ink/50 transition-all group cursor-pointer" onclick="selectDay(2)">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="w-6 h-6 rounded-lg bg-mustardLight text-mustard flex items-center justify-center font-bold text-xs">M2</span>
+              <span class="text-[10px] font-bold text-stone-400">Day 2</span>
+            </div>
+            <h4 class="text-xs font-bold text-ink group-hover:text-mustard transition-colors">高階提示與思維鏈</h4>
+            <p class="text-[10px] text-inkMuted mt-1 line-clamp-2">CoT、Few-shot、結構化 JSON 輸出與知識庫整合。</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-3 border border-stone-300 shadow-card hover:border-ink/50 transition-all group cursor-pointer" onclick="selectDay(3)">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="w-6 h-6 rounded-lg bg-matchaLight text-matcha flex items-center justify-center font-bold text-xs">M3</span>
+              <span class="text-[10px] font-bold text-stone-400">Day 3</span>
+            </div>
+            <h4 class="text-xs font-bold text-ink group-hover:text-matcha transition-colors">多模態影音與視覺</h4>
+            <p class="text-[10px] text-inkMuted mt-1 line-clamp-2">Midjourney、Stable Diffusion 與語音克隆落地。</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-3 border border-stone-300 shadow-card hover:border-ink/50 transition-all group cursor-pointer" onclick="selectDay(4)">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="w-6 h-6 rounded-lg bg-aizomeLight text-aizome flex items-center justify-center font-bold text-xs">M4</span>
+              <span class="text-[10px] font-bold text-stone-400">Day 4</span>
+            </div>
+            <h4 class="text-xs font-bold text-ink group-hover:text-aizome transition-colors">AI Agent 與工作流</h4>
+            <p class="text-[10px] text-inkMuted mt-1 line-clamp-2">LangChain、Dify 建立自主自動化工作流助理。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. 底部額外區塊：課前準備 / 軟體安裝清單 (Checklist) -->
+      <section id="checklistSection" class="bg-white rounded-3xl p-4 border border-stone-300 shadow-card relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-terracotta via-mustard to-matcha"></div>
+
+        <div class="flex items-center justify-between mb-3 pt-1">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-xl bg-paperDark flex items-center justify-center text-ink">
+              <i data-lucide="check-square" class="w-4 h-4 text-terracotta"></i>
+            </span>
+            <div>
+              <h3 class="text-sm font-bold font-maru text-ink">課前準備・安裝清單</h3>
+              <p class="text-[10px] text-inkMuted">上課前請務必完成以下軟體與金鑰配置</p>
+            </div>
+          </div>
+          <span id="checklistProgressText" class="text-[11px] font-bold text-terracotta bg-terracottaLight px-2.5 py-1 rounded-full border border-terracotta/20">
+            2 / 5 完成
+          </span>
+        </div>
+
+        <!-- 動態即時進度條 -->
+        <div class="w-full bg-stone-100 rounded-full h-1.5 mb-3.5 overflow-hidden">
+          <div id="progressBar" class="bg-terracotta h-full rounded-full transition-all duration-300" style="width: 40%"></div>
+        </div>
+
+        <!-- 互動勾選清單 -->
+        <div class="space-y-2.5 text-xs">
+          <label class="flex items-start gap-3 p-2.5 rounded-2xl border border-stone-200/90 hover:bg-stone-50/80 cursor-pointer transition-all">
+            <input type="checkbox" checked onchange="updateChecklist()" class="mt-0.5 rounded-md text-terracotta focus:ring-0 border-stone-300 w-4 h-4 cursor-pointer accent-terracotta">
+            <div class="flex-1">
+              <span class="font-bold text-ink block check-text line-through text-inkMuted">申請 OpenAI API Key 或 Claude API</span>
+              <span class="text-[10px] text-stone-400">請儲值至少 5 美元餘額以供上課調用測試</span>
+            </div>
+            <span class="text-[10px] text-stone-400 font-mono">必備</span>
+          </label>
+
+          <label class="flex items-start gap-3 p-2.5 rounded-2xl border border-stone-200/90 hover:bg-stone-50/80 cursor-pointer transition-all">
+            <input type="checkbox" checked onchange="updateChecklist()" class="mt-0.5 rounded-md text-terracotta focus:ring-0 border-stone-300 w-4 h-4 cursor-pointer accent-terracotta">
+            <div class="flex-1">
+              <span class="font-bold text-ink block check-text line-through text-inkMuted">安裝最新版 VS Code 編輯器</span>
+              <span class="text-[10px] text-stone-400">建議同步預先安裝 Python 與 Node.js 執行環境</span>
+            </div>
+            <span class="text-[10px] text-stone-400 font-mono">必備</span>
+          </label>
+
+          <label class="flex items-start gap-3 p-2.5 rounded-2xl border border-stone-200/90 hover:bg-stone-50/80 cursor-pointer transition-all">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded-md text-terracotta focus:ring-0 border-stone-300 w-4 h-4 cursor-pointer accent-terracotta">
+            <div class="flex-1">
+              <span class="font-bold text-ink block check-text">註冊 Midjourney / Discord 帳號</span>
+              <span class="text-[10px] text-stone-400">Day 3 視覺模組專案實作所需</span>
+            </div>
+            <span class="text-[10px] text-amber-600 font-mono">建議</span>
+          </label>
+
+          <label class="flex items-start gap-3 p-2.5 rounded-2xl border border-stone-200/90 hover:bg-stone-50/80 cursor-pointer transition-all">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded-md text-terracotta focus:ring-0 border-stone-300 w-4 h-4 cursor-pointer accent-terracotta">
+            <div class="flex-1">
+              <span class="font-bold text-ink block check-text">下載課程範例 Repo (GitHub)</span>
+              <span class="text-[10px] text-stone-400">課前寄發下載連結至學員專屬信箱</span>
+            </div>
+            <span class="text-[10px] text-stone-400 font-mono">講義</span>
+          </label>
+
+          <label class="flex items-start gap-3 p-2.5 rounded-2xl border border-stone-200/90 hover:bg-stone-50/80 cursor-pointer transition-all">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-0.5 rounded-md text-terracotta focus:ring-0 border-stone-300 w-4 h-4 cursor-pointer accent-terracotta">
+            <div class="flex-1">
+              <span class="font-bold text-ink block check-text">筆記型電腦充電器與多孔延長線</span>
+              <span class="text-[10px] text-stone-400">教室提供一般插座，自備轉接頭更便利</span>
+            </div>
+            <span class="text-[10px] text-stone-400 font-mono">硬體</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 6. 底部額外區塊：課程資訊 / 教室地點 (Venue Info) -->
+      <section id="venueSection" class="bg-white rounded-3xl p-4 border border-stone-300 shadow-card space-y-3.5">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-xl bg-aizomeLight flex items-center justify-center text-aizome">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h3 class="text-sm font-bold font-maru text-ink">課程實體空間與支援</h3>
+            <p class="text-[10px] text-inkMuted">台北科技創新育成中心 3F AI 實驗室</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <!-- 交通 -->
+          <div class="p-3 bg-paper rounded-2xl border border-stone-200/80">
+            <div class="flex items-center gap-1.5 text-inkMuted text-[10px] mb-1">
+              <i data-lucide="navigation" class="w-3 h-3 text-terracotta"></i>
+              交通方式
+            </div>
+            <p class="font-bold text-ink text-[11px]">捷運大安站 4 號出口</p>
+            <p class="text-[10px] text-inkMuted mt-0.5">步行約 3 分鐘即達</p>
+          </div>
+
+          <!-- WiFi 帳密與複製 -->
+          <div class="p-3 bg-paper rounded-2xl border border-stone-200/80 relative">
+            <div class="flex items-center justify-between text-inkMuted text-[10px] mb-1">
+              <span class="flex items-center gap-1">
+                <i data-lucide="wifi" class="w-3 h-3 text-matcha"></i>
+                學員專用 WiFi
+              </span>
+              <button onclick="copyWifi()" class="text-terracotta hover:underline font-bold text-[9px] flex items-center gap-0.5">
+                <i data-lucide="copy" class="w-2.5 h-2.5"></i>
+                複製
+              </button>
+            </div>
+            <p class="font-mono font-bold text-ink text-[11px]" id="wifiSSID">AICamp-5G</p>
+            <p class="font-mono text-[10px] text-inkMuted mt-0.5" id="wifiPass">pw: learn_ai_2026</p>
+          </div>
+        </div>
+
+        <!-- 導師資訊 -->
+        <div class="p-3 rounded-2xl bg-paperDark/60 border border-stone-200 flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-full bg-stone-300 flex items-center justify-center font-bold text-xs text-ink overflow-hidden border border-white">
+              <span class="text-sm">👨‍🏫</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-ink">主講導師：林克博士 (Dr. Ken Lin)</p>
+              <p class="text-[10px] text-inkMuted">資深 AI 首席架構師・Google GDE 專家</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold text-matcha bg-matchaLight px-2 py-1 rounded-lg border border-matcha/20">全程帶練</span>
+        </div>
+
+        <!-- 動作按鈕 -->
+        <div class="flex gap-2 pt-1">
+          <a href="javascript:void(0)" onclick="alert('已開啟課綱 PDF 預覽');" class="flex-1 py-2.5 rounded-2xl border border-stone-300 text-ink text-center text-xs font-bold hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-inkMuted"></i>
+            下載課綱
+          </a>
+          <a href="javascript:void(0)" onclick="alert('已複製助教聯絡 Line ID: @aicamp2026');" class="flex-1 py-2.5 rounded-2xl bg-ink text-white text-center text-xs font-bold shadow-sm hover:bg-stone-800 active:scale-95 transition-all flex items-center justify-center gap-1.5">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+            學員助教群
+          </a>
+        </div>
+      </section>
+
+      <!-- 頁腳 -->
+      <footer class="text-center py-4 text-[11px] text-stone-400">
+        <p>© 2026 AI Navigator Camp. All rights reserved.</p>
+        <p class="mt-0.5">日系極簡與工匠精神・探索未來智能邊界</p>
+      </footer>
+    </main>
+
+    <!-- 底部固定浮動選單 (Bottom App Dock) -->
+    <div class="bg-white/90 backdrop-blur-md border-t border-stone-200/90 py-2.5 px-6 flex justify-around items-center sticky bottom-0 z-40">
+      <button onclick="scrollToTop()" class="flex flex-col items-center text-ink group">
+        <i data-lucide="calendar" class="w-5 h-5 group-hover:text-terracotta transition-colors"></i>
+        <span class="text-[10px] font-bold mt-1">日程大綱</span>
+      </button>
+      <button onclick="switchTab('checklist')" class="flex flex-col items-center text-stone-400 hover:text-ink transition-colors group">
+        <i data-lucide="list-todo" class="w-5 h-5 group-hover:text-terracotta transition-colors"></i>
+        <span class="text-[10px] font-medium mt-1">行前清單</span>
+      </button>
+      <button onclick="switchTab('venue')" class="flex flex-col items-center text-stone-400 hover:text-ink transition-colors group">
+        <i data-lucide="compass" class="w-5 h-5 group-hover:text-terracotta transition-colors"></i>
+        <span class="text-[10px] font-medium mt-1">教室指引</span>
+      </button>
+      <button onclick="showToast('⭐ 已將課表存入我的最愛！')" class="flex flex-col items-center text-stone-400 hover:text-ink transition-colors group">
+        <i data-lucide="bookmark" class="w-5 h-5 group-hover:text-terracotta transition-colors"></i>
+        <span class="text-[10px] font-medium mt-1">我的收藏</span>
+      </button>
+    </div>
+
+    <!-- 浮動提示 Toast -->
+    <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 bg-ink text-white px-4 py-2 rounded-2xl text-xs font-medium shadow-xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+      <i data-lucide="check" class="w-4 h-4 text-green-400"></i>
+      <span id="toastMsg">已複製到剪貼簿！</span>
+    </div>
+
+  </div>
+
+  <!-- 互動腳本 -->
+  <script>
+    const scheduleData = {
+      1: {
+        dateTitle: "Day 1 ・ 11/11 (週三)",
+        sessions: [
+          { time: "09:30 - 11:00", duration: "90 min", emoji: "🧭", title: "LLM 核心世界觀與生成機理", desc: "從 Transformer 架構通俗解析、Token 運作成本到注意力機制。建立正確的模型直覺與預期管理。", tags: ["模型本質", "Token經濟學", "概念釐清"], badgeBg: "bg-terracottaLight", badgeText: "text-terracotta" },
+          { time: "11:15 - 12:45", duration: "90 min", emoji: "💬", title: "主流前線模型橫向評測與選型", desc: "深入剖析 GPT-4o、Claude 3.5 Sonnet、Gemini 1.5 Pro 與開源 Llama 3 各自強項與在職場上的最佳定位。", tags: ["模型對比", "實務選型", "基準測試"], badgeBg: "bg-mustardLight", badgeText: "text-mustard" },
+          { time: "14:00 - 17:00", duration: "180 min", emoji: "🛠️", title: "初探 API 調用與本機環境建立", desc: "動手寫下第一隻 Python AI 程式，設定 API Key 環境變數，了解 System/User/Assistant 訊息結構與參數調校。", tags: ["動手實作", "Python入門", "API呼叫"], badgeBg: "bg-matchaLight", badgeText: "text-matcha" }
+        ]
+      },
+      2: {
+        dateTitle: "Day 2 ・ 11/12 (週四)",
+        sessions: [
+          { time: "09:30 - 11:00", duration: "90 min", emoji: "🎯", title: "結構化 Prompt 與角色人格設計", desc: "告別隨興聊天！學習 CRISP / CO-STAR 等專業提示工程框架，精準定義邊界條件與抑制幻覺。", tags: ["Prompt架構", "防範幻覺", "角色扮演"], badgeBg: "bg-terracottaLight", badgeText: "text-terracotta" },
+          { time: "11:15 - 12:45", duration: "90 min", emoji: "🧩", title: "進階技術：CoT 思維鏈與 Few-Shot 範例", desc: "如何引導模型一步一步思考 (Chain-of-Thought) 解決複雜邏輯難題，以及透過小樣本範例控制風格格式。", tags: ["思維鏈", "Few-Shot", "邏輯拆解"], badgeBg: "bg-aizomeLight", badgeText: "text-aizome" },
+          { time: "14:00 - 17:00", duration: "180 min", emoji: "📋", title: "結構化 JSON Schema 輸出與工具函數", desc: "實作將非結構化雜亂長文本轉化為嚴謹 JSON 資料表，並完成第一個自動分析發票與報告的小工具。", tags: ["Function Calling", "JSON模式", "自動化萃取"], badgeBg: "bg-matchaLight", badgeText: "text-matcha" }
+        ]
+      },
+      3: {
+        dateTitle: "Day 3 ・ 11/13 (週五)",
+        sessions: [
+          { time: "09:30 - 12:00", duration: "150 min", emoji: "🎨", title: "Midjourney v6.1 與商業視覺生成心法", desc: "解構參數指令 (--ar, --stylize, --sref 風格參考)，打造日系極簡、科技質感與品牌行銷級設計素材。", tags: ["商業生圖", "Midjourney", "風格一致性"], badgeBg: "bg-terracottaLight", badgeText: "text-terracotta" },
+          { time: "13:30 - 15:30", duration: "120 min", emoji: "🎙️", title: "多模態音頻與數位分身克隆 (ElevenLabs)", desc: "錄製 1 分鐘自訂聲音樣本，建立個人化 AI 配音旁白；搭配 Runway/Luma 生成高質感動態宣傳短片。", tags: ["語音生成", "AI影片", "數位人"], badgeBg: "bg-mustardLight", badgeText: "text-mustard" },
+          { time: "15:45 - 17:00", duration: "75 min", emoji: "💡", title: "跨模態整合：從企劃文案到視覺短影音", desc: "分組挑戰：30 分鐘內利用 AI 工具鏈產出一支完整的社群商業短影音展示。", tags: ["分組快跑", "短影音", "成果產出"], badgeBg: "bg-aizomeLight", badgeText: "text-aizome" }
+        ]
+      },
+      4: {
+        dateTitle: "Day 4 ・ 11/14 (週六)",
+        sessions: [
+          { time: "09:30 - 11:30", duration: "120 min", emoji: "🤖", title: "什麼是 AI Agent？自主代理人架構拆解", desc: "從單次問答躍升到具備目標、自主規劃 (Planning)、記憶 (Memory) 與工具使用 (Tool Use) 的自主代理。", tags: ["Agent心法", "LangChain", "自主架構"], badgeBg: "bg-aizomeLight", badgeText: "text-aizome" },
+          { time: "11:45 - 13:00", duration: "75 min", emoji: "📚", title: "RAG 企業知識庫實作：檢索增強生成", desc: "向量資料庫概念與文件分塊 (Chunking)。讓 AI 根據公司內部專屬 PDF 精準回答，不胡說八道。", tags: ["RAG知識庫", "向量檢索", "企業落地"], badgeBg: "bg-terracottaLight", badgeText: "text-terracotta" },
+          { time: "14:00 - 17:00", duration: "180 min", emoji: "⚡", title: "No-Code Agent 平台 (Dify) 實戰", desc: "親手搭建一個全自動爬取最新科技新聞、撰寫摘要並自動發送至 Slack / Line 的工作流機器人。", tags: ["Dify工作流", "自動化營運", "實戰發布"], badgeBg: "bg-matchaLight", badgeText: "text-matcha" }
+        ]
+      },
+      5: {
+        dateTitle: "Day 5 ・ 11/15 (週日)",
+        sessions: [
+          { time: "09:30 - 12:00", duration: "150 min", emoji: "🚀", title: "黑客松衝刺：打造專屬 AI 應用解決方案", desc: "導師一對一輔導諮詢，學員聚焦真實工作痛點，完善原型 (Prototype) 開發與介面串接。", tags: ["黑客松", "導師輔導", "原型打磨"], badgeBg: "bg-mustardLight", badgeText: "text-mustard" },
+          { time: "13:30 - 16:00", duration: "150 min", emoji: "🏆", title: "學員專案成果發表 & 評審講評", desc: "每組 8 分鐘上台 Demo 發表，由業界資深 AI 專家與創投評審提供落地方案反饋與商轉建議。", tags: ["DemoDay", "業界評審", "人脈交流"], badgeBg: "bg-terracottaLight", badgeText: "text-terracotta" },
+          { time: "16:15 - 17:00", duration: "45 min", emoji: "🎓", title: "結業典禮、證書頒發與校友社群加入", desc: "結營合影留念，頒發實戰營結業證書，正式開啟 AI 賦能與終身學習交流社群。", tags: ["結業證書", "人脈圈", "圓滿落幕"], badgeBg: "bg-matchaLight", badgeText: "text-matcha" }
+        ]
+      }
+    };
+
+    function renderTimeline(day) {
+      const container = document.getElementById("timelineContainer");
+      const current = scheduleData[day];
+      document.getElementById("currentDateLabel").textContent = current.dateTitle;
+
+      let html = "";
+      current.sessions.forEach((s, idx) => {
+        html += `
+          <div class="timeline-item relative flex items-start gap-3.5 group">
+            <div class="timeline-line flex flex-col items-center flex-shrink-0 pt-1">
+              <div class="w-10 h-10 rounded-2xl bg-white border border-stone-300 shadow-sm flex items-center justify-center text-lg z-10 group-hover:border-terracotta transition-colors">
+                ${s.emoji}
+              </div>
+              <span class="text-[10px] font-mono text-stone-400 mt-2 font-bold">${String(idx + 1).padStart(2, '0')}</span>
+            </div>
+            <div class="flex-1 bg-white rounded-3xl p-4 border border-stone-300 shadow-card hover:shadow-card-hover hover:border-ink/40 transition-all duration-200">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-mono font-bold text-ink flex items-center gap-1">
+                  <i data-lucide="clock-3" class="w-3 h-3 text-stone-400"></i>
+                  ${s.time}
+                </span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${s.badgeBg} ${s.badgeText} border border-stone-200/50">
+                  ${s.duration}
+                </span>
+              </div>
+              <h4 class="text-sm font-bold font-maru text-ink group-hover:text-terracotta transition-colors leading-snug">
+                ${s.title}
+              </h4>
+              <p class="text-xs text-inkMuted mt-1.5 leading-relaxed font-normal">
+                ${s.desc}
+              </p>
+              <div class="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-stone-100">
+                ${s.tags.map(tag => `
+                  <span class="text-[10px] text-stone-500 bg-paper px-2 py-0.5 rounded-lg border border-stone-200/80">
+                    #${tag}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function selectDay(day) {
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`day-btn-${i}`);
+        if (!btn) continue;
+        if (i === day) {
+          btn.className = "day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border-2 border-ink text-center shadow-sm flex flex-col items-center transition-all scale-[1.02] ring-2 ring-ink/10";
+          btn.querySelector("span:first-child").className = "text-[10px] font-bold text-terracotta uppercase tracking-wider";
+        } else {
+          btn.className = "day-btn flex-1 min-w-[72px] py-2.5 px-3 rounded-2xl bg-white border border-stone-300 text-center shadow-card flex flex-col items-center opacity-70 hover:opacity-100 hover:border-stone-400 transition-all";
+          btn.querySelector("span:first-child").className = "text-[10px] font-bold text-stone-400 uppercase tracking-wider";
+        }
+      }
+      renderTimeline(day);
+    }
+
+    function switchTab(tabKey) {
+      const tabs = ['timeline', 'modules', 'checklist', 'venue'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (!btn) return;
+        if (t === tabKey) {
+          btn.className = "tab-btn px-3.5 py-1.5 rounded-xl bg-ink text-white shadow-sm transition-all whitespace-nowrap";
+        } else {
+          btn.className = "tab-btn px-3.5 py-1.5 rounded-xl bg-white text-inkMuted border border-stone-300 hover:border-ink/40 transition-all whitespace-nowrap";
+        }
+      });
+      if (tabKey === 'timeline') document.getElementById('dateSelectorSection').scrollIntoView({ behavior: 'smooth' });
+      else if (tabKey === 'modules') document.getElementById('moduleOverviewSection').scrollIntoView({ behavior: 'smooth' });
+      else if (tabKey === 'checklist') document.getElementById('checklistSection').scrollIntoView({ behavior: 'smooth' });
+      else if (tabKey === 'venue') document.getElementById('venueSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function updateChecklist() {
+      const checkboxes = document.querySelectorAll("#checklistSection input[type='checkbox']");
+      let checkedCount = 0;
+      checkboxes.forEach(cb => {
+        const textSpan = cb.parentElement.querySelector(".check-text");
+        if (cb.checked) {
+          checkedCount++;
+          textSpan.classList.add("line-through", "text-inkMuted");
+        } else {
+          textSpan.classList.remove("line-through", "text-inkMuted");
+        }
+      });
+      const total = checkboxes.length;
+      const percent = Math.round((checkedCount / total) * 100);
+      document.getElementById("checklistProgressText").textContent = `${checkedCount} / ${total} 完成`;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      const remaining = total - checkedCount;
+      const badge = document.getElementById("badgeChecklist");
+      if (badge) {
+        badge.textContent = remaining;
+        badge.style.display = remaining > 0 ? 'inline-flex' : 'none';
+      }
+    }
+
+    function copyWifi() {
+      const passText = "learn_ai_2026";
+      navigator.clipboard.writeText(passText).then(() => {
+        showToast("WiFi 密碼已複製：" + passText);
+      }).catch(() => {
+        showToast("已成功複製 WiFi 資訊");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastMsg").textContent = msg;
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      toast.classList.add("opacity-100");
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0", "pointer-events-none");
+      }, 2200);
+    }
+
+    function scrollToTop() {
+      document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTimeline(1);
+      updateChecklist();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
